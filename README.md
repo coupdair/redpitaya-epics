@@ -19,7 +19,8 @@ There is nothing too funky in the code so I believe any EPICS Base > 3.14.12.2 s
 Same story as with EPICS Base, but it has only been tested with asynDriver 4.26 and 4.31.
 
 ## Deployment
-It takes quite some time to build EPICS Base and asynDriver on RedPitaya (and hour and 20 minutes for base) so I suggest you cross-compile the two. 
+It takes quite some time to build EPICS Base and asynDriver on RedPitaya (an hour and 20 minutes for base) so I suggest you cross-compile the two.
+But, you may find compilation on RedPitaya itself in [embedding compilation](#embedding-compilation) section (it's better to do it on USB drive, rather than uSD).
 
 ### Prerequisites
 First you'll need build toolchain binaries for target architecture. RedPitaya is using Linaro's linux-arm-gnueabihf build toolchain so that's what you should get. I got mine from here: https://releases.linaro.org/components/toolchain/binaries/6.3-2017.02/arm-linux-gnueabihf/. Simply extract it to <arm\_compiler\_dir> and that's it.
@@ -45,12 +46,13 @@ After you have EPICS Base and asynDriver ready (cross-compiled or built on the b
 
 ## Embedding compilation
 
-Work in progress
+Work in progress: all compile and run, but need to add `make install` on uSD.
 
-note: compilation on RedPitaya is rather slow, but its embedding all on the module. Compiling on an external USB drive will save uSD card life.
+note: compilation on RedPitaya is rather slow, but its embedding all on the module.
+Compiling on an external USB drive will save uSD card life.
 
-download and compile first `EPICS`, then `ASyn` and finish `redpitaya-epics`, e.g. in SSD drive mounted in `~/code/`.
-The three project might be gathered within an `EPICS` folder.
+Download and compile first `EPICS-base`, then `ASyn` and finish with `redpitaya-epics`, e.g. in SSD drive mounted in `~/code/`.
+The three projects might be gathered within an `EPICS` folder.
 
 ### EPICS base
 
@@ -91,9 +93,9 @@ e.g. git commit #`ec6710a`
 
 ~~~ { .bash }
 cd ~/code/EPICS/
-https://github.com/AustralianSynchrotron/redpitaya-epics
+git clone https://github.com/AustralianSynchrotron/redpitaya-epics
 #or
-git clone https://github.com/coupdair/redpitaya-epics
+git clone git@github.com:/coupdair/redpitaya-epics
 cd redpitaya-epics/
 #configure EPICS base path to "../base-*/":
 src=`grep "EPICS_BASE=" configure/RELEASE | tr / @`; dst=`cd ..; ls -d $PWD/base-* | head -n 1 | tr / @`; mv configure/RELEASE configure/RELEASE.old ; cat configure/RELEASE.old | tr / @ | sed "s/$src/EPICS_BASE=$dst/" | tr @ / | tee configure/RELEASE | grep base
