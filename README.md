@@ -43,6 +43,65 @@ For other components you want to cross-compile for RedPitaya you just have to ma
 ### Building the Driver Itself
 After you have EPICS Base and asynDriver ready (cross-compiled or built on the board) it's time to build this driver. It's designed to be built on the board itself, so begin by copying it to RedPitaya. Once this is done, simply modify the $(TOP)/configure/RELEASE file of this module to point to where your EPICS Base and asynDriver are and hit make.
 
+## Embedding compilation
+
+Work in progress
+
+note: compilation on RedPitaya is rather slow, but its embedding all on the module. Compiling on an external USB drive will save uSD card life.
+
+download and compile first `EPICS`, then `ASyn` and finish `redpitaya-epics`, e.g. in SSD drive mounted in `~/code/`.
+The three project might be gathered within an `EPICS` folder.
+
+### EPICS base
+
+e.g. `base-3.16.1`
+
+~~~ { .bash }
+ssh root@RedPitaya
+
+cd ~/code/
+mkdir EPICS/
+cd EPICS/
+wget https://epics.anl.gov/download/base/base-3.16.1.tar.gz
+tar xzf base-3.16.1.tar.gz 
+cd base-3.16.1/
+make
+make install
+~~~
+
+### asyn
+
+e.g. `R4-31`
+
+~~~ { .bash }
+cd ~/code/EPICS/
+wget https://github.com/epics-modules/asyn/archive/R4-31.tar.gz
+mv R4-31.tar.gz asyn-R4-31.tar.gz
+tar xzf asyn-R4-31.tar.gz
+cd asyn-R4-31/
+#configure EPICS base path to "../base-*/":
+src=`grep "EPICS_BASE=" configure/RELEASE | tr / @`; dst=`cd ..; ls -d $PWD/base-* | head -n 1 | tr / @`; mv configure/RELEASE configure/RELEASE.old ; cat configure/RELEASE.old | tr / @ | sed "s/$src/EPICS_BASE=$dst/" | tr @ / | tee configure/RELEASE | grep base
+make
+#FAIL after a while, but all you need for redpitaya-epics is there !
+~~~
+
+### redpitaya-epics
+
+e.g. git commit #`ec6710a`
+
+~~~ { .bash }
+cd ~/code/EPICS/
+https://github.com/AustralianSynchrotron/redpitaya-epics
+#or
+git clone https://github.com/coupdair/redpitaya-epics
+cd redpitaya-epics/
+#configure EPICS base path to "../base-*/":
+src=`grep "EPICS_BASE=" configure/RELEASE | tr / @`; dst=`cd ..; ls -d $PWD/base-* | head -n 1 | tr / @`; mv configure/RELEASE configure/RELEASE.old ; cat configure/RELEASE.old | tr / @ | sed "s/$src/EPICS_BASE=$dst/" | tr @ / | tee configure/RELEASE | grep base
+#configure ASYN path to "../asyn-*/":
+src=`grep "ASYN=" configure/RELEASE | tr / @`; dst=`cd ..; ls -d $PWD/asyn-* | head -n 1 | tr / @`; mv configure/RELEASE configure/RELEASE.old ; cat configure/RELEASE.old | tr / @ | sed "s/$src/ASYN=$dst/" | tr @ / | tee configure/RELEASE | grep asynmake
+make
+~~~
+
 ## Running the Test App
 
 ### Stopping the Web Server
